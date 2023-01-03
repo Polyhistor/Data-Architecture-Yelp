@@ -1,0 +1,1 @@
+CREATE warehouse YelpDataArchitecture;
