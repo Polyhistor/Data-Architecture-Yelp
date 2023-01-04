@@ -23,7 +23,9 @@ put file:///home/pouya/Desktop/projects/Data-Architecture-Yelp/datasets/usw00023
 -- Create a table for Climate temperature degrees
 CREATE TABLE ClimateTemperatureDegrees (date number,min float,max float, normal_min float, normal_max float);
 
-CREATE TABLE ClimatePrecipitation (date number,precipitation float,precipitation_normal float);
+CREATE TABLE ClimatePrecipitation (date number,precipitation varchar,precipitation_normal float);
 
 -- Copying files Climate datasets from CSV staging area to corresponding tables
 COPY INTO ClimateTemperatureDegrees FROM @csv_data_stage/usw00023169-temperature-degreef.csv.gz file_format=csv_format; 
+
+COPY INTO ClimatePrecipitation FROM @csv_data_stage/usw00023169-las-vegas-mccarran-intl-ap-precipitation-inch.csv.gz file_format=csv_format;

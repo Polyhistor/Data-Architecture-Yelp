@@ -9,7 +9,7 @@ This will be done through Snowflake cloud.
 - [x] Create a data architecture diagram to visualize how you will ingest and migrate the data into Staging, Operational Data Store (ODS), and Data Warehouse environments, so as to ultimately query the data for relationships between weather and Yelp reviews. Save this so it can be included in your final submission.
 - [x] Create a staging, ODS, DWS environments(schema) in Snowflake.
 - [x] Break Yelp data down to several datasets so it's easier to upload.
-- [] Upload all Climate data to the staging environment and screenshot it.
+- [x] Upload all Climate data to the staging environment and screenshot it.
 - [] Upload all Yelp data to the staging environment and screenshot it.
 - [] Draw an entity-relationship (ER) diagram to visualize the data structure. Save this so it can be included in your final submission.
 - [] Migrate the data into the ODS environment. (Screenshots 3,4,5,6)
