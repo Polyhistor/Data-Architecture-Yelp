@@ -16,3 +16,7 @@ This will be done through Snowflake cloud.
 - [] Draw a STAR schema for the Data Warehouse environment. Save this so it can be included in your final submission.
 - [] Migrate the data to the Data Warehouse. (Screenshot 7)
 - [] Query the Data Warehouse to determine how weather affects Yelp reviews. ( Screenshot 8)
+
+# Data architecture diagram
+
+![alt text](https://github.com/Polyhistor/Data-Architecture-Yelp/blob/master/Yelp%20Data%20Architecture.jpeg)
