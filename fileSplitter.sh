@@ -1,1 +1,2 @@
-split --numeric-suffixes=1 --additional-suffix=yelp_academic_dataset_user.json  -b100MB yelp_academic_dataset_user.json
+split --numeric-suffixes=1 --additional-suffix=yelp_academic_dataset_user.json  -b1GB yelp_academic_dataset_user.json
+split --numeric-suffixes=1 --additional-suffix=yelp_academic_dataset_review.json  -b1GB yelp_academic_dataset_review.json
