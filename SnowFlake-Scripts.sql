@@ -57,7 +57,7 @@ put file:///home/pouya/Desktop/projects/Data-Architecture-Yelp/datasets/yelp_aca
 
 
 -- Creating a table for Yelp customer tips 
-CREATE TABLE userTips(tip variant);
+CREATE TABLE userTips(user_id varchar(100), business_id varchar(100), text varchar(500), date TIMESTAMP_NTZ, compliment_count number);
 
 -- Creating a table for Yelp COVID features dataset
 CREATE TABLE covidFeatures(covidFeature variant);
@@ -75,10 +75,9 @@ CREATE TABLE reviews(review variant);
 CREATE TABLE users(user variant);
 
 -- Copying Yelp datasets from JSON staging area to corresponding tables
-COPY INTO userTips FROM @json_data_stage/yelp_academic_dataset_tip.json.gz  file_format=json_format; 
+COPY INTO userTips (user_id, business_id, text, date, compliment_count) 
+from (select $1:user_id::varchar, $1:business_id::varchar, $1:text::varchar, $1:date::TIMESTAMP_LTZ, $1:compliment_count::number from @json_data_stage/yelp_academic_dataset_tip.json.gz t); 
 COPY INTO covidFeatures FROM @json_data_stage/yelp_academic_dataset_tip.json.gz  file_format=json_format; 
 COPY INTO userTips FROM @json_data_stage/yelp_academic_dataset_tip.json.gz  file_format=json_format; 
 COPY INTO userTips FROM @json_data_stage/yelp_academic_dataset_tip.json.gz  file_format=json_format; 
 
-COPY INTO jsonTest (user_id, business_id, text, date, compliment_count) 
-from (select $1:user_id::varchar, $1:business_id::varchar, $1:text::varchar, $1:date::timestamp_ltz, $1:compliment_count::number from @json_data_stage/yelp_academic_dataset_tip.json.gz t);
