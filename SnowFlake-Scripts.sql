@@ -40,16 +40,8 @@ CREATE OR REPLACE FILE FORMAT json_format type = json strip_outer_array=true;
 CREATE OR REPLACE STAGE JSON_DATA_STAGE file_format= json_format;
 
 -- Uploading YELP JSON datasets into the staging 
-put file:///home/pouya/Desktop/projects/Data-Architecture-Yelp/datasets/x01yelp_academic_dataset_review.json @JSON_DATA_STAGE auto_compress=true;
-put file:///home/pouya/Desktop/projects/Data-Architecture-Yelp/datasets/x02yelp_academic_dataset_review.json @JSON_DATA_STAGE auto_compress=true;
-put file:///home/pouya/Desktop/projects/Data-Architecture-Yelp/datasets/x03yelp_academic_dataset_review.json @JSON_DATA_STAGE auto_compress=true;
-put file:///home/pouya/Desktop/projects/Data-Architecture-Yelp/datasets/x04yelp_academic_dataset_review.json @JSON_DATA_STAGE auto_compress=true;
-put file:///home/pouya/Desktop/projects/Data-Architecture-Yelp/datasets/x05yelp_academic_dataset_review.json @JSON_DATA_STAGE auto_compress=true;
-put file:///home/pouya/Desktop/projects/Data-Architecture-Yelp/datasets/x06yelp_academic_dataset_review.json @JSON_DATA_STAGE auto_compress=true;
-put file:///home/pouya/Desktop/projects/Data-Architecture-Yelp/datasets/x01yelp_academic_dataset_user.json @JSON_DATA_STAGE auto_compress=true;
-put file:///home/pouya/Desktop/projects/Data-Architecture-Yelp/datasets/x02yelp_academic_dataset_user.json @JSON_DATA_STAGE auto_compress=true;
-put file:///home/pouya/Desktop/projects/Data-Architecture-Yelp/datasets/x03yelp_academic_dataset_user.json @JSON_DATA_STAGE auto_compress=true;
-put file:///home/pouya/Desktop/projects/Data-Architecture-Yelp/datasets/x04yelp_academic_dataset_user.json @JSON_DATA_STAGE auto_compress=true;
+put file:///home/pouya/Desktop/projects/Data-Architecture-Yelp/datasets/yelp_academic_dataset_review.json @JSON_DATA_STAGE auto_compress=true;
+put file:///home/pouya/Desktop/projects/Data-Architecture-Yelp/datasets/yelp_academic_dataset_user.json @JSON_DATA_STAGE auto_compress=true;
 put file:///home/pouya/Desktop/projects/Data-Architecture-Yelp/datasets/yelp_academic_dataset_business.json @JSON_DATA_STAGE auto_compress=true;
 put file:///home/pouya/Desktop/projects/Data-Architecture-Yelp/datasets/yelp_academic_dataset_checkin.json @JSON_DATA_STAGE auto_compress=true;
 put file:///home/pouya/Desktop/projects/Data-Architecture-Yelp/datasets/yelp_academic_dataset_covid_features.json @JSON_DATA_STAGE auto_compress=true;
@@ -66,13 +58,13 @@ CREATE TABLE covidFeatures(business_id varchar(100), highlights varchar(10000), 
 CREATE TABLE checkins(business_id varchar(100), date varchar(10000000));
 
 -- Creating a table for Yelp businesses dataset
-CREATE TABLE businesses(business variant);
+CREATE TABLE business(business_id varchar(100), name varchar(500), address varchar(1000), city varchar(500), state varchar(50), postal_code varchar(50), lattitude float, longitude float, stars float, review_count number, is_open number, attributes variant);
 
 -- Creating a table for Yelp customer reviews
-CREATE TABLE reviews(review variant);
+CREATE TABLE reviews(review_id varchar(100), user_id varchar(100), business_id varchar(100), stars float,  useful number, funny number, cool number, text varchar(1000000), date TIMESTAMP_NTZ);
 
 -- Creating a table for Yelp users
-CREATE TABLE users(user variant);
+CREATE TABLE users(user_id varchar(100), name varchar(300), review_count number, yelping_since  TIMESTAMP_NTZ, useful number, funny number, cool number, elite varchar(300), friends varchar(1000000), compliment_hot number, compliment_more number, compliment_profile number, compliment_cute number, compliment_list number, compliment_note number, compliment_plain number, compliment_cool number, compliment_funny number, compliment_writer number, compliment_photos number);
 
 -- Copying Yelp datasets from JSON staging area to corresponding tables
 COPY INTO userTips (user_id, business_id, text, date, compliment_count) 
@@ -84,5 +76,11 @@ FROM (SELECT $1:business_id::varchar(100), $1:highlights::varchar(10000), $1:del
 
 COPY INTO checkins (business_id, date)
 FROM (SELECT $1:business_id::varchar(100), $1:date::varchar(10000000) FROM @json_data_stage/yelp_academic_dataset_checkin.json.gz); 
+
+COPY INTO business (business_id, name, address, city, state, postal_code, lattitude, longitude, stars, review_count, is_open, attributes)
+FROM (SELECT $1:business_id::varchar(100), $1:name::varchar(500), $1:address::varchar(1000), $1:city::varchar(500), $1:state::varchar(50), $1:postal_code::varchar(50), $1:lattitude::float, $1:longitude::float, $1:stars::float, $1:review_count::number, $1:is_open::number, $1:attributes::variant FROM @json_data_stage/yelp_academic_dataset_business.json.gz);
+
+COPY INTO reviews (review_id, user_id, business_id, stars, useful, funny, cool, text, date)
+FROM (SELECT $1:review_id::varchar(100), $1:user_id::varchar(100), $1:business_id::varchar(100), $1:stars::float, $1:useful::number, $1:funny::number, $1:cool::number, $1:text::varchar(1000000), $1:date::TIMESTAMP_NTZ FROM @json_data_stage/yelp_academic_dataset_review.json.gz);
 
 
