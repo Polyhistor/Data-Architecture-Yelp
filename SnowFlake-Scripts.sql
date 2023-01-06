@@ -70,7 +70,6 @@ CREATE TABLE users(user_id varchar(100), name varchar(300), review_count number,
 COPY INTO userTips (user_id, business_id, text, date, compliment_count) 
 FROM (SELECT $1:user_id::varchar, $1:business_id::varchar, $1:text::varchar, $1:date::TIMESTAMP_LTZ, $1:compliment_count::number from @json_data_stage/yelp_academic_dataset_tip.json.gz t); 
 
-
 COPY INTO covidFeatures (business_id, highlights, delivery_or_takout, grubhub_enabled, call_to_action_enabled, request_a_quote_enbaled, covid_banner, temporary_closed_Until, virtual_services_offered) 
 FROM (SELECT $1:business_id::varchar(100), $1:highlights::varchar(10000), $1:delivery_or_takout::boolean, $1:grubhub_enabled::boolean, $1:call_to_action_enabled::boolean, $1:request_a_quote_enbaled::boolean, $1:covid_banner::varchar(30000), $1:temporary_closed_Until::boolean, $1:virtual_services_offered::boolean from @json_data_stage/yelp_academic_dataset_covid_features.json.gz t);
 
@@ -82,5 +81,8 @@ FROM (SELECT $1:business_id::varchar(100), $1:name::varchar(500), $1:address::va
 
 COPY INTO reviews (review_id, user_id, business_id, stars, useful, funny, cool, text, date)
 FROM (SELECT $1:review_id::varchar(100), $1:user_id::varchar(100), $1:business_id::varchar(100), $1:stars::float, $1:useful::number, $1:funny::number, $1:cool::number, $1:text::varchar(1000000), $1:date::TIMESTAMP_NTZ FROM @json_data_stage/yelp_academic_dataset_review.json.gz);
+
+COPY INTO users (user_id, name, review_count, yelping_since, useful, funny, cool, elite, friends, compliment_hot, compliment_more, compliment_profile, compliment_cute, compliment_list, compliment_note, compliment_plain, compliment_cool, compliment_funny, compliment_writer, compliment_photos)
+FROM (SELECT $1:user_id::varchar(100), $1:name::varchar(300), $1:review_count::number, $1:yelping_since::TIMESTAMP_NTZ, $1:useful::number, $1:funny::number, $1:cool::number, $1:elite::varchar(300), $1:friends::varchar(1000000), $1:compliment_hot::number, $1:compliment_more::number, $1:compliment_profile::number, $1:compliment_cute::number, $1:compliment_list::number, $1:compliment_note::number, $1:compliment_plain::number, $1:compliment_cool::number, $1:compliment_funny::number, $1:compliment_writer::number, $1:compliment_photos::number FROM @json_data_stage/yelp_academic_dataset_user.json.gz);
 
 
