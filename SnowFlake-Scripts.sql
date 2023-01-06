@@ -60,10 +60,10 @@ put file:///home/pouya/Desktop/projects/Data-Architecture-Yelp/datasets/yelp_aca
 CREATE TABLE userTips(user_id varchar(100), business_id varchar(100), text varchar(500), date TIMESTAMP_NTZ, compliment_count number);
 
 -- Creating a table for Yelp COVID features dataset
-CREATE TABLE covidFeatures(covidFeature variant);
+CREATE TABLE covidFeatures(business_id varchar(100), highlights varchar(10000), delivery_or_takout boolean, grubhub_enabled boolean, call_to_action_enabled boolean, request_a_quote_enbaled boolean, covid_banner varchar(30000), temporary_closed_Until boolean, virtual_services_offered boolean);
 
 -- Creating a table for Yelp customer check ins
-CREATE TABLE checkins(checkIn variant);
+CREATE TABLE checkins(business_id varchar(100), date varchar(10000000));
 
 -- Creating a table for Yelp businesses dataset
 CREATE TABLE businesses(business variant);
@@ -76,8 +76,13 @@ CREATE TABLE users(user variant);
 
 -- Copying Yelp datasets from JSON staging area to corresponding tables
 COPY INTO userTips (user_id, business_id, text, date, compliment_count) 
-from (select $1:user_id::varchar, $1:business_id::varchar, $1:text::varchar, $1:date::TIMESTAMP_LTZ, $1:compliment_count::number from @json_data_stage/yelp_academic_dataset_tip.json.gz t); 
-COPY INTO covidFeatures FROM @json_data_stage/yelp_academic_dataset_tip.json.gz  file_format=json_format; 
-COPY INTO userTips FROM @json_data_stage/yelp_academic_dataset_tip.json.gz  file_format=json_format; 
-COPY INTO userTips FROM @json_data_stage/yelp_academic_dataset_tip.json.gz  file_format=json_format; 
+FROM (SELECT $1:user_id::varchar, $1:business_id::varchar, $1:text::varchar, $1:date::TIMESTAMP_LTZ, $1:compliment_count::number from @json_data_stage/yelp_academic_dataset_tip.json.gz t); 
+
+
+COPY INTO covidFeatures (business_id, highlights, delivery_or_takout, grubhub_enabled, call_to_action_enabled, request_a_quote_enbaled, covid_banner, temporary_closed_Until, virtual_services_offered) 
+FROM (SELECT $1:business_id::varchar(100), $1:highlights::varchar(10000), $1:delivery_or_takout::boolean, $1:grubhub_enabled::boolean, $1:call_to_action_enabled::boolean, $1:request_a_quote_enbaled::boolean, $1:covid_banner::varchar(30000), $1:temporary_closed_Until::boolean, $1:virtual_services_offered::boolean from @json_data_stage/yelp_academic_dataset_covid_features.json.gz t);
+
+COPY INTO checkins (business_id, date)
+FROM (SELECT $1:business_id::varchar(100), $1:date::varchar(10000000) FROM @json_data_stage/yelp_academic_dataset_checkin.json.gz); 
+
 
