@@ -10,8 +10,8 @@ This will be done through Snowflake cloud.
 - [x] Create a staging, ODS, DWS environments(schema) in Snowflake.
 - [x] Break Yelp data down to several datasets so it's easier to upload.
 - [x] Upload all Climate data to the staging environment and screenshot it.
-- [] Upload all Yelp data to the staging environment and screenshot it.
-- [] Draw an entity-relationship (ER) diagram to visualize the data structure. Save this so it can be included in your final submission.
+- [x] Upload all Yelp data to the staging environment and screenshot it.
+- [] Draw an entity-relationship (ER) diagram to visualize the data structure.
 - [] Migrate the data into the ODS environment. (Screenshots 3,4,5,6)
 - [] Draw a STAR schema for the Data Warehouse environment. Save this so it can be included in your final submission.
 - [] Migrate the data to the Data Warehouse. (Screenshot 7)

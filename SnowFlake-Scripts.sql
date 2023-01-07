@@ -1,15 +1,17 @@
+--  ############# --
+--  ## STAGING ## --  
+--  ############# --
+
 -- Creating a warehouse 
 CREATE WAREHOUSE YelpDataArchitecture;
 
 -- Creating a database 
 CREATE DATABASE Yelp;
 
--- Creating necessary schemas 
+-- Creating a schema
 CREATE SCHEMA staging;
-CREATE SCHEMA ODS;
-CREATE SCHEMA DWS;
 
--- CSV PART - CLIMATE --
+-- ### CSV PART - CLIMATE ### --
 
 -- Creating a file format for CSV
 CREATE OR REPLACE FILE FORMAT csv_format type = csv skip_header = 1 empty_field_as_null = true;
@@ -31,7 +33,7 @@ CREATE TABLE ClimatePrecipitation (date number,precipitation varchar,precipitati
 COPY INTO ClimateTemperatureDegrees FROM @csv_data_stage/usw00023169-temperature-degreef.csv.gz file_format=csv_format; 
 COPY INTO ClimatePrecipitation FROM @csv_data_stage/usw00023169-las-vegas-mccarran-intl-ap-precipitation-inch.csv.gz file_format=csv_format;
 
--- JSON PART - YELP -- 
+-- ### JSON PART - YELP ### -- 
 
 -- Creating a file format for JSON 
 CREATE OR REPLACE FILE FORMAT json_format type = json strip_outer_array=true;
@@ -47,6 +49,28 @@ put file:///home/pouya/Desktop/projects/Data-Architecture-Yelp/datasets/yelp_aca
 put file:///home/pouya/Desktop/projects/Data-Architecture-Yelp/datasets/yelp_academic_dataset_covid_features.json @JSON_DATA_STAGE auto_compress=true;
 put file:///home/pouya/Desktop/projects/Data-Architecture-Yelp/datasets/yelp_academic_dataset_tip.json @JSON_DATA_STAGE auto_compress=true;
 
+-- Creating a table for Yelp customer tips 
+CREATE TABLE userTips(usertip variant);
+CREATE TABLE covidFeatures(covidFeature variant);
+CREATE TABLE checkins(checkin variant);
+CREATE TABLE business(business variant);
+CREATE TABLE reviews(review variant);
+CREATE TABLE users(user variant);
+
+-- Copying Yelp datasets from JSON staging area to corresponding tables
+COPY INTO userTips from @json_data_stage/yelp_academic_dataset_tip.json.gz file_format=json_format;
+COPY INTO covidFeatures from @json_data_stage/yelp_academic_dataset_covid_features.json.gz file_format=json_format;
+COPY INTO checkins from @json_data_stage/yelp_academic_dataset_checkin.json.gz file_format=json_format;
+COPY INTO business from @json_data_stage/yelp_academic_dataset_business.json.gz file_format=json_format;
+COPY INTO reviews from @json_data_stage/yelp_academic_dataset_review.json.gz file_format=json_format;
+COPY INTO users from @json_data_stage/yelp_academic_dataset_user.json.gz file_format=json_format;
+
+--  ############# --
+--  ## ODS ## --  
+--  ############# --
+
+-- Creating a schema
+CREATE SCHEMA ODS;
 
 -- Creating a table for Yelp customer tips 
 CREATE TABLE userTips(user_id varchar(100), business_id varchar(100), text varchar(500), date TIMESTAMP_NTZ, compliment_count number);
@@ -64,7 +88,7 @@ CREATE TABLE business(business_id varchar(100), name varchar(500), address varch
 CREATE TABLE reviews(review_id varchar(100), user_id varchar(100), business_id varchar(100), stars float,  useful number, funny number, cool number, text varchar(1000000), date TIMESTAMP_NTZ);
 
 -- Creating a table for Yelp users
-CREATE TABLE users(user_id varchar(100), name varchar(300), review_count number, yelping_since  TIMESTAMP_NTZ, useful number, funny number, cool number, elite varchar(300), friends varchar(1000000), compliment_hot number, compliment_more number, compliment_profile number, compliment_cute number, compliment_list number, compliment_note number, compliment_plain number, compliment_cool number, compliment_funny number, compliment_writer number, compliment_photos number);
+CREATE TABLE users(user_id varchar(100), name varchar(300), review_count number, yelping_since  TIMESTAMP_NTZ, useful number, funny number, cool number, elite varchar(300), friends varchar(1000000), fans number, average_stars float, compliment_hot number, compliment_more number, compliment_profile number, compliment_cute number, compliment_list number, compliment_note number, compliment_plain number, compliment_cool number, compliment_funny number, compliment_writer number, compliment_photos number);
 
 -- Copying Yelp datasets from JSON staging area to corresponding tables
 COPY INTO userTips (user_id, business_id, text, date, compliment_count) 
@@ -83,6 +107,7 @@ COPY INTO reviews (review_id, user_id, business_id, stars, useful, funny, cool, 
 FROM (SELECT $1:review_id::varchar(100), $1:user_id::varchar(100), $1:business_id::varchar(100), $1:stars::float, $1:useful::number, $1:funny::number, $1:cool::number, $1:text::varchar(1000000), $1:date::TIMESTAMP_NTZ FROM @json_data_stage/yelp_academic_dataset_review.json.gz);
 
 COPY INTO users (user_id, name, review_count, yelping_since, useful, funny, cool, elite, friends, compliment_hot, compliment_more, compliment_profile, compliment_cute, compliment_list, compliment_note, compliment_plain, compliment_cool, compliment_funny, compliment_writer, compliment_photos)
-FROM (SELECT $1:user_id::varchar(100), $1:name::varchar(300), $1:review_count::number, $1:yelping_since::TIMESTAMP_NTZ, $1:useful::number, $1:funny::number, $1:cool::number, $1:elite::varchar(300), $1:friends::varchar(1000000), $1:compliment_hot::number, $1:compliment_more::number, $1:compliment_profile::number, $1:compliment_cute::number, $1:compliment_list::number, $1:compliment_note::number, $1:compliment_plain::number, $1:compliment_cool::number, $1:compliment_funny::number, $1:compliment_writer::number, $1:compliment_photos::number FROM @json_data_stage/yelp_academic_dataset_user.json.gz);
+FROM (SELECT $1:user_id::varchar(100), $1:name::varchar(300), $1:review_count::number, $1:yelping_since::TIMESTAMP_NTZ, $1:useful::number, $1:funny::number, $1:cool::number, $1:elite::varchar(300), $1:friends::varchar(1000000), $1:fans::number, $1:compliment_hot::number, $1:compliment_more::number, $1:compliment_profile::number, $1:compliment_cute::number, $1:compliment_list::number, $1:compliment_note::number, $1:compliment_plain::number, $1:compliment_cool::number, $1:compliment_funny::number, $1:compliment_writer::number, $1:compliment_photos::number FROM @json_data_stage/yelp_academic_dataset_user.json.gz);
 
 
+CREATE SCHEMA DWS;
