@@ -101,13 +101,19 @@ INSERT INTO covidFeatures
 SELECT covidFeature:business_id, covidFeature:highlights, covidFeature:"delivery or takeout", covidFeature:"Grubhub enabled", covidFeature:"Call To Action enabled", covidFeature:"Request a Quote Enabled", covidFeature:"Covid Banner", covidFeature:"Temporary Closed Until", covidFeature:"Virtual Services Offered" 
 FROM yelp.staging.covidFeatures;
 
-
-
 -- COPY INTO covidFeatures (business_id, highlights, delivery_or_takout, grubhub_enabled, call_to_action_enabled, request_a_quote_enbaled, covid_banner, temporary_closed_Until, virtual_services_offered) 
 -- FROM (SELECT $1:business_id::varchar(100), $1:highlights::varchar(10000), $1:delivery_or_takout::boolean, $1:grubhub_enabled::boolean, $1:call_to_action_enabled::boolean, $1:request_a_quote_enbaled::boolean, $1:covid_banner::varchar(30000), $1:temporary_closed_Until::boolean, $1:virtual_services_offered::boolean from @json_data_stage/yelp_academic_dataset_covid_features.json.gz t);
 
-COPY INTO checkins (business_id, date)
-FROM (SELECT $1:business_id::varchar(100), $1:date::varchar(10000000) FROM @json_data_stage/yelp_academic_dataset_checkin.json.gz); 
+INSERT INTO checkins 
+SELECT checkin:business_id, checkin:date 
+FROM yelp.staging.checkins;
+
+-- COPY INTO checkins (business_id, date)
+-- FROM (SELECT $1:business_id::varchar(100), $1:date::varchar(10000000) FROM @json_data_stage/yelp_academic_dataset_checkin.json.gz); 
+
+INSERT INTO business 
+SELECT 
+
 
 COPY INTO business (business_id, name, address, city, state, postal_code, lattitude, longitude, stars, review_count, is_open, attributes)
 FROM (SELECT $1:business_id::varchar(100), $1:name::varchar(500), $1:address::varchar(1000), $1:city::varchar(500), $1:state::varchar(50), $1:postal_code::varchar(50), $1:lattitude::float, $1:longitude::float, $1:stars::float, $1:review_count::number, $1:is_open::number, $1:attributes::variant FROM @json_data_stage/yelp_academic_dataset_business.json.gz);
