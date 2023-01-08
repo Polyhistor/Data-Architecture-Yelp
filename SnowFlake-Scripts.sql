@@ -112,7 +112,8 @@ FROM yelp.staging.checkins;
 -- FROM (SELECT $1:business_id::varchar(100), $1:date::varchar(10000000) FROM @json_data_stage/yelp_academic_dataset_checkin.json.gz); 
 
 INSERT INTO business 
-SELECT 
+SELECT $100), $1:name, $1:address, $1:city, $1:state, $1:postal_code, $1:lattitude, $1:longitude, $1:stars, $1:review_count, $1:is_open, $1:attributes::variant FROM @json_data_stage/yelp_academic_dataset_business.json.gz)
+FROM yelp.staging.business;
 
 
 COPY INTO business (business_id, name, address, city, state, postal_code, lattitude, longitude, stars, review_count, is_open, attributes)
