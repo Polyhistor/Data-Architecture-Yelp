@@ -82,7 +82,7 @@ CREATE TABLE covidFeatures(business_id varchar(100), highlights varchar(10000), 
 CREATE TABLE checkins(business_id varchar(100), date varchar(10000000));
 
 -- Creating a table for Yelp businesses dataset
-CREATE TABLE business(business_id varchar(100), name varchar(500), address varchar(1000), city varchar(500), state varchar(50), postal_code varchar(50), lattitude float, longitude float, stars float, review_count number, is_open number, attributes variant);
+CREATE TABLE business(business_id varchar(1000), name varchar(500), address varchar(1000), city varchar(500), state varchar(50), postal_code varchar(100), lattitude float, longitude float, stars float, review_count number, is_open number, attributes variant, hours variant, categories varchar(100000));
 
 -- Creating a table for Yelp customer reviews
 CREATE TABLE reviews(review_id varchar(100), user_id varchar(100), business_id varchar(100), stars float,  useful number, funny number, cool number, text varchar(1000000), date TIMESTAMP_NTZ);
@@ -112,18 +112,24 @@ FROM yelp.staging.checkins;
 -- FROM (SELECT $1:business_id::varchar(100), $1:date::varchar(10000000) FROM @json_data_stage/yelp_academic_dataset_checkin.json.gz); 
 
 INSERT INTO business 
-SELECT $100), $1:name, $1:address, $1:city, $1:state, $1:postal_code, $1:lattitude, $1:longitude, $1:stars, $1:review_count, $1:is_open, $1:attributes::variant FROM @json_data_stage/yelp_academic_dataset_business.json.gz)
-FROM yelp.staging.business;
+SELECT business:business_id, business:name, business:address, business:city, business:state, business:postal_code, business:latitude, business:longitude, business:stars, business:review_count, business:is_open, business:attributes, business:hours, business:categories FROM yelp.staging.business;
 
 
-COPY INTO business (business_id, name, address, city, state, postal_code, lattitude, longitude, stars, review_count, is_open, attributes)
-FROM (SELECT $1:business_id::varchar(100), $1:name::varchar(500), $1:address::varchar(1000), $1:city::varchar(500), $1:state::varchar(50), $1:postal_code::varchar(50), $1:lattitude::float, $1:longitude::float, $1:stars::float, $1:review_count::number, $1:is_open::number, $1:attributes::variant FROM @json_data_stage/yelp_academic_dataset_business.json.gz);
+-- COPY INTO business (business_id, name, address, city, state, postal_code, lattitude, longitude, stars, review_count, is_open, attributes)
+-- FROM (SELECT $1:business_id::varchar(100), $1:name::varchar(500), $1:address::varchar(1000), $1:city::varchar(500), $1:state::varchar(50), $1:postal_code::varchar(50), $1:lattitude::float, $1:longitude::float, $1:stars::float, $1:review_count::number, $1:is_open::number, $1:attributes::variant FROM @json_data_stage/yelp_academic_dataset_business.json.gz);
 
-COPY INTO reviews (review_id, user_id, business_id, stars, useful, funny, cool, text, date)
-FROM (SELECT $1:review_id::varchar(100), $1:user_id::varchar(100), $1:business_id::varchar(100), $1:stars::float, $1:useful::number, $1:funny::number, $1:cool::number, $1:text::varchar(1000000), $1:date::TIMESTAMP_NTZ FROM @json_data_stage/yelp_academic_dataset_review.json.gz);
+INSERT INTO reviews 
+SELECT review:review_id, review:user_id, review:business_id, review:stars, review:useful, review:funny, review:cool, review:text, review:date FROM yelp.staging.reviews;
 
-COPY INTO users (user_id, name, review_count, yelping_since, useful, funny, cool, elite, friends, compliment_hot, compliment_more, compliment_profile, compliment_cute, compliment_list, compliment_note, compliment_plain, compliment_cool, compliment_funny, compliment_writer, compliment_photos)
-FROM (SELECT $1:user_id::varchar(100), $1:name::varchar(300), $1:review_count::number, $1:yelping_since::TIMESTAMP_NTZ, $1:useful::number, $1:funny::number, $1:cool::number, $1:elite::varchar(300), $1:friends::varchar(1000000), $1:fans::number, $1:compliment_hot::number, $1:compliment_more::number, $1:compliment_profile::number, $1:compliment_cute::number, $1:compliment_list::number, $1:compliment_note::number, $1:compliment_plain::number, $1:compliment_cool::number, $1:compliment_funny::number, $1:compliment_writer::number, $1:compliment_photos::number FROM @json_data_stage/yelp_academic_dataset_user.json.gz);
+
+-- COPY INTO reviews (review_id, user_id, business_id, stars, useful, funny, cool, text, date)
+-- FROM (SELECT $1:review_id::varchar(100), $1:user_id::varchar(100), $1:business_id::varchar(100), $1:stars::float, $1:useful::number, $1:funny::number, $1:cool::number, $1:text::varchar(1000000), $1:date::TIMESTAMP_NTZ FROM @json_data_stage/yelp_academic_dataset_review.json.gz);
+
+INSERT INTO users 
+SELECT user:user_id, user:name, user:review_count, user:yelping_since, user:useful, user:funny, user:cool, user:elite, user:friends, user:fans, user:average_stars, user:compliment_hot, user:compliment_more, user:compliment_profile, user:compliment_cute, user:compliment_list, user:compliment_note, user:compliment_plain, user:compliment_cool, user:compliment_funny, user:compliment_writer, user:compliment_photos FROM yelp.staging.users;
+
+-- COPY INTO users (user_id, name, review_count, yelping_since, useful, funny, cool, elite, friends, compliment_hot, compliment_more, compliment_profile, compliment_cute, compliment_list, compliment_note, compliment_plain, compliment_cool, compliment_funny, compliment_writer, compliment_photos)
+-- FROM (SELECT $1:user_id::varchar(100), $1:name::varchar(300), $1:review_count::number, $1:yelping_since::TIMESTAMP_NTZ, $1:useful::number, $1:funny::number, $1:cool::number, $1:elite::varchar(300), $1:friends::varchar(1000000), $1:fans::number, $1:compliment_hot::number, $1:compliment_more::number, $1:compliment_profile::number, $1:compliment_cute::number, $1:compliment_list::number, $1:compliment_note::number, $1:compliment_plain::number, $1:compliment_cool::number, $1:compliment_funny::number, $1:compliment_writer::number, $1:compliment_photos::number FROM @json_data_stage/yelp_academic_dataset_user.json.gz);
 
 
 CREATE SCHEMA DWS;
