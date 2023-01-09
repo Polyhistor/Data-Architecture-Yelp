@@ -72,6 +72,24 @@ COPY INTO users from @json_data_stage/yelp_academic_dataset_user.json.gz file_fo
 -- Creating a schema
 CREATE SCHEMA ODS;
 
+-- ### CSV PART - CLIMATE ### --
+
+-- Creating a table for Climate temperature degrees
+CREATE TABLE ClimateTemperatureDegrees (date number,min float,max float, normal_min float, normal_max float);
+
+INSERT INTO ClimateTemperatureDegrees
+SELECT date, min, max, normal_min, normal_max 
+FROM yelp.staging.climateTemperatureDegrees;
+
+-- Creating a table for Climate preciptations
+CREATE TABLE ClimatePrecipitation (date number,precipitation varchar,precipitation_normal float);
+
+INSERT INTO ClimatePrecipitation
+SELECT date, precipitation, precipitation_normal 
+FROM yelp.staging.ClimatePrecipitation;
+
+-- ### JSON PART - YELP ### -- 
+
 -- Creating a table for Yelp customer tips 
 CREATE TABLE userTips(user_id varchar(100), business_id varchar(100), text varchar(500), date TIMESTAMP_NTZ, compliment_count number);
 
