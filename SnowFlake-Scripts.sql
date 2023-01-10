@@ -77,9 +77,9 @@ CREATE SCHEMA ODS;
 -- Creating a table for Climate temperature degrees
 CREATE TABLE ClimateTemperatureDegrees (date number,min float,max float, normal_min float, normal_max float);
 
-INSERT INTO ClimateTemperatureDegrees
-SELECT date, min, max, normal_min, normal_max 
-FROM yelp.staging.climateTemperatureDegrees;
+-- TEST AREAS
+alter table CLIMATETEMPERATUREDEGREES add constraint "primary_key_constraint" primary key (CLIMATE_ID);
+
 
 -- Creating a table for Climate preciptations
 CREATE TABLE ClimatePrecipitation (date number,precipitation varchar,precipitation_normal float);
@@ -132,13 +132,11 @@ FROM yelp.staging.checkins;
 INSERT INTO business 
 SELECT business:business_id, business:name, business:address, business:city, business:state, business:postal_code, business:latitude, business:longitude, business:stars, business:review_count, business:is_open, business:attributes, business:hours, business:categories FROM yelp.staging.business;
 
-
 -- COPY INTO business (business_id, name, address, city, state, postal_code, lattitude, longitude, stars, review_count, is_open, attributes)
 -- FROM (SELECT $1:business_id::varchar(100), $1:name::varchar(500), $1:address::varchar(1000), $1:city::varchar(500), $1:state::varchar(50), $1:postal_code::varchar(50), $1:lattitude::float, $1:longitude::float, $1:stars::float, $1:review_count::number, $1:is_open::number, $1:attributes::variant FROM @json_data_stage/yelp_academic_dataset_business.json.gz);
 
 INSERT INTO reviews 
 SELECT review:review_id, review:user_id, review:business_id, review:stars, review:useful, review:funny, review:cool, review:text, review:date FROM yelp.staging.reviews;
-
 
 -- COPY INTO reviews (review_id, user_id, business_id, stars, useful, funny, cool, text, date)
 -- FROM (SELECT $1:review_id::varchar(100), $1:user_id::varchar(100), $1:business_id::varchar(100), $1:stars::float, $1:useful::number, $1:funny::number, $1:cool::number, $1:text::varchar(1000000), $1:date::TIMESTAMP_NTZ FROM @json_data_stage/yelp_academic_dataset_review.json.gz);
@@ -149,5 +147,9 @@ SELECT user:user_id, user:name, user:review_count, user:yelping_since, user:usef
 -- COPY INTO users (user_id, name, review_count, yelping_since, useful, funny, cool, elite, friends, compliment_hot, compliment_more, compliment_profile, compliment_cute, compliment_list, compliment_note, compliment_plain, compliment_cool, compliment_funny, compliment_writer, compliment_photos)
 -- FROM (SELECT $1:user_id::varchar(100), $1:name::varchar(300), $1:review_count::number, $1:yelping_since::TIMESTAMP_NTZ, $1:useful::number, $1:funny::number, $1:cool::number, $1:elite::varchar(300), $1:friends::varchar(1000000), $1:fans::number, $1:compliment_hot::number, $1:compliment_more::number, $1:compliment_profile::number, $1:compliment_cute::number, $1:compliment_list::number, $1:compliment_note::number, $1:compliment_plain::number, $1:compliment_cool::number, $1:compliment_funny::number, $1:compliment_writer::number, $1:compliment_photos::number FROM @json_data_stage/yelp_academic_dataset_user.json.gz);
 
+--  ############# --
+--  ## DWS ## --  
+--  ############# --
 
 CREATE SCHEMA DWS;
+
