@@ -77,9 +77,9 @@ CREATE SCHEMA ODS;
 -- Creating a table for Climate temperature degrees
 CREATE TABLE ClimateTemperatureDegrees (date number,min float,max float, normal_min float, normal_max float);
 
--- TEST AREAS
-alter table CLIMATETEMPERATUREDEGREES add constraint "primary_key_constraint" primary key (CLIMATE_ID);
-
+INSERT INTO ClimateTemperatureDegrees
+SELECT date, min, max, normal_min,normal_max
+FROM yelp.staging.ClimateTemperatureDegrees;
 
 -- Creating a table for Climate preciptations
 CREATE TABLE ClimatePrecipitation (date number,precipitation varchar,precipitation_normal float);
