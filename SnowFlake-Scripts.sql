@@ -65,17 +65,6 @@ COPY INTO business from @json_data_stage/yelp_academic_dataset_business.json.gz 
 COPY INTO reviews from @json_data_stage/yelp_academic_dataset_review.json.gz file_format=json_format;
 COPY INTO users from @json_data_stage/yelp_academic_dataset_user.json.gz file_format=json_format;
 
--- Row Counts 
-SELECT COUNT(t.$1) FROM @csv_data_stage/usw00023169-temperature-degreef.csv.gz t;
-SELECT COUNT(t.$1) FROM @csv_data_stage/usw00023169-las-vegas-mccarran-intl-ap-precipitation-inch.csv.gz t;
-SELECT COUNT(t.$1) FROM @json_data_stage/yelp_academic_dataset_tip.json.gz t;
-SELECT COUNT(t.$1) FROM @json_data_stage/yelp_academic_dataset_covid_features.json.gz t;
-SELECT COUNT(t.$1) FROM @json_data_stage/yelp_academic_dataset_checkin.json.gz t;
-SELECT COUNT(t.$1) FROM @json_data_stage/yelp_academic_dataset_business.json.gz t;
-SELECT COUNT(t.$1) FROM @json_data_stage/yelp_academic_dataset_review.json.gz t;
-SELECT COUNT(t.$1) FROM @json_data_stage/yelp_academic_dataset_user.json.gz t;
-
-
 --  ############# --
 --  ## ODS ## --  
 --  ############# --
