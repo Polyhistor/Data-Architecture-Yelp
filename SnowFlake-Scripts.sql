@@ -65,6 +65,17 @@ COPY INTO business from @json_data_stage/yelp_academic_dataset_business.json.gz 
 COPY INTO reviews from @json_data_stage/yelp_academic_dataset_review.json.gz file_format=json_format;
 COPY INTO users from @json_data_stage/yelp_academic_dataset_user.json.gz file_format=json_format;
 
+-- Row Counts 
+SELECT COUNT(t.$1) FROM @csv_data_stage/usw00023169-temperature-degreef.csv.gz t;
+SELECT COUNT(t.$1) FROM @csv_data_stage/usw00023169-las-vegas-mccarran-intl-ap-precipitation-inch.csv.gz t;
+SELECT COUNT(t.$1) FROM @json_data_stage/yelp_academic_dataset_tip.json.gz t;
+SELECT COUNT(t.$1) FROM @json_data_stage/yelp_academic_dataset_covid_features.json.gz t;
+SELECT COUNT(t.$1) FROM @json_data_stage/yelp_academic_dataset_checkin.json.gz t;
+SELECT COUNT(t.$1) FROM @json_data_stage/yelp_academic_dataset_business.json.gz t;
+SELECT COUNT(t.$1) FROM @json_data_stage/yelp_academic_dataset_review.json.gz t;
+SELECT COUNT(t.$1) FROM @json_data_stage/yelp_academic_dataset_user.json.gz t;
+
+
 --  ############# --
 --  ## ODS ## --  
 --  ############# --
@@ -143,6 +154,7 @@ SELECT review:review_id, review:user_id, review:business_id, review:stars, revie
 
 INSERT INTO users 
 SELECT user:user_id, user:name, user:review_count, user:yelping_since, user:useful, user:funny, user:cool, user:elite, user:friends, user:fans, user:average_stars, user:compliment_hot, user:compliment_more, user:compliment_profile, user:compliment_cute, user:compliment_list, user:compliment_note, user:compliment_plain, user:compliment_cool, user:compliment_funny, user:compliment_writer, user:compliment_photos FROM yelp.staging.users;
+
 
 -- COPY INTO users (user_id, name, review_count, yelping_since, useful, funny, cool, elite, friends, compliment_hot, compliment_more, compliment_profile, compliment_cute, compliment_list, compliment_note, compliment_plain, compliment_cool, compliment_funny, compliment_writer, compliment_photos)
 -- FROM (SELECT $1:user_id::varchar(100), $1:name::varchar(300), $1:review_count::number, $1:yelping_since::TIMESTAMP_NTZ, $1:useful::number, $1:funny::number, $1:cool::number, $1:elite::varchar(300), $1:friends::varchar(1000000), $1:fans::number, $1:compliment_hot::number, $1:compliment_more::number, $1:compliment_profile::number, $1:compliment_cute::number, $1:compliment_list::number, $1:compliment_note::number, $1:compliment_plain::number, $1:compliment_cool::number, $1:compliment_funny::number, $1:compliment_writer::number, $1:compliment_photos::number FROM @json_data_stage/yelp_academic_dataset_user.json.gz);
