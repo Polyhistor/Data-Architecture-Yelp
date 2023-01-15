@@ -177,7 +177,21 @@ CREATE TABLE DimReviews(review_id varchar(100), user_id varchar(100), business_i
 CREATE TABLE DimUsers(user_id varchar(100), name varchar(300), review_count number, yelping_since  TIMESTAMP_NTZ, useful number, funny number, cool number, elite varchar(300), friends varchar(1000000), fans number, average_stars float, compliment_hot number, compliment_more number, compliment_profile number, compliment_cute number, compliment_list number, compliment_note number, compliment_plain number, compliment_cool number, compliment_funny number, compliment_writer number, compliment_photos number);
 
 CREATE TABLE FactTable_Review (
-    
-)
+ user_id varchar(100), 
+ business_id varchar(100), 
+ user_tip_id varchar(100),
+ covid_feature_id varchar(100),
+ checkin_id varchar(100),
+ review_id varchar(100),
+ climate_precipitation_id varchar(100),
+ climate_temperature_id varchar(100)
 
+ constraint fk_user foreign key (user_id) references yelp.dws.DimUsers,
+ constraint business_id foreign key (business_id) references yelp.dws.DimBusiness,  
+ constraint user_tip_id foreign key (text,date) references yelp.dws.DimUserTips,  
+ constraint covid_feature_id foreign key (business_id, highlights) references yelp.dws.DimCovidFeatures,  
+ constraint checkin_id foreign key (business_id, date) references yelp.dws.DimCheckin, 
+ constraint climate_precipitation_id foreign key (date) references yelp.dws.DimClimatePrecipitation, 
+ constraint climate_temperature_id foreign key (date) references yelp.dws.DimClimateTemperatureDegrees, 
+)
 
