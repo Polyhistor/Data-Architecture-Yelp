@@ -176,6 +176,8 @@ CREATE TABLE DimReviews(review_id varchar(100), user_id varchar(100), business_i
 
 CREATE TABLE DimUsers(user_id varchar(100), name varchar(300), review_count number, yelping_since  TIMESTAMP_NTZ, useful number, funny number, cool number, elite varchar(300), friends varchar(1000000), fans number, average_stars float, compliment_hot number, compliment_more number, compliment_profile number, compliment_cute number, compliment_list number, compliment_note number, compliment_plain number, compliment_cool number, compliment_funny number, compliment_writer number, compliment_photos number);
 
-
+CREATE TABLE FactTable_Review (
+    
+)
 
 
