@@ -160,38 +160,129 @@ ON TO_CHAR(TO_TIMESTAMP_NTZ(ct.date), 'YYYY-MM-DD')  = TO_CHAR(r.date, 'YYYY-MM-
 CREATE SCHEMA DWS;
 
 -- Creating necessary tables
-CREATE TABLE DimClimateTemperatureDegrees (date date,min float,max float, normal_min float, normal_max float);
+CREATE TABLE DimClimateTemperatureDegrees (
+date date,
+min float,
+max float, 
+normal_min float,
+normal_max float,
 
-CREATE TABLE DimClimatePrecipitation (date date,precipitation varchar,precipitation_normal float);
+constraint pk primary key (date)
+);
 
-CREATE TABLE DimUserTips(user_id varchar(100), business_id varchar(100), text varchar(500), date TIMESTAMP_NTZ, compliment_count number);
+CREATE TABLE DimClimatePrecipitation (
+date date,
+precipitation varchar,
+precipitation_normal float,
 
-CREATE TABLE DimCovidFeatures(business_id varchar(100), highlights varchar(10000), delivery_or_takout boolean, grubhub_enabled boolean, call_to_action_enabled boolean, request_a_quote_enbaled boolean, covid_banner varchar(30000), temporary_closed_Until varchar(500), virtual_services_offered varchar(500));
+constraint pk primary key (date)
+);
 
-CREATE TABLE DimCheckin(business_id varchar(100), date varchar(10000000));
+CREATE TABLE DimUserTips(
+user_id varchar(100), 
+business_id varchar(1000), 
+text varchar(500), 
+date TIMESTAMP_NTZ, 
+compliment_count number,
 
-CREATE TABLE DimBusiness(business_id varchar(1000), name varchar(500), address varchar(1000), city varchar(500), state varchar(50), postal_code varchar(100), lattitude float, longitude float, stars float, review_count number, is_open number, attributes variant, hours variant, categories varchar(100000));
+constraint pk primary key (user_id, business_id)
+);
 
-CREATE TABLE DimReviews(review_id varchar(100), user_id varchar(100), business_id varchar(100), stars float,  useful number, funny number, cool number, text varchar(1000000), date TIMESTAMP_NTZ);
+CREATE TABLE DimCovidFeatures(
+business_id varchar(1000), 
+highlights varchar(10000), 
+delivery_or_takout boolean, 
+grubhub_enabled boolean, 
+call_to_action_enabled boolean, 
+request_a_quote_enbaled boolean, 
+covid_banner varchar(30000), 
+temporary_closed_Until varchar(500), 
+virtual_services_offered varchar(500),
 
-CREATE TABLE DimUsers(user_id varchar(100), name varchar(300), review_count number, yelping_since  TIMESTAMP_NTZ, useful number, funny number, cool number, elite varchar(300), friends varchar(1000000), fans number, average_stars float, compliment_hot number, compliment_more number, compliment_profile number, compliment_cute number, compliment_list number, compliment_note number, compliment_plain number, compliment_cool number, compliment_funny number, compliment_writer number, compliment_photos number);
+constraint pk primary key (business_id)
+);
+
+CREATE TABLE DimCheckin(
+business_id varchar(1000), 
+date varchar(10000000),
+
+constraint pk primary key (business_id)
+);
+
+CREATE TABLE DimBusiness(
+business_id varchar(1000),
+name varchar(500), 
+address varchar(1000), 
+city varchar(500), 
+state varchar(50), 
+postal_code varchar(100), 
+lattitude float, 
+longitude float, 
+stars float, 
+review_count number, 
+is_open number, 
+attributes variant, 
+hours variant, 
+categories varchar(100000),
+
+constraint pk primary key (business_id)
+);
+
+CREATE TABLE DimReviews(
+review_id varchar(100), 
+user_id varchar(100), 
+business_id varchar(100), 
+stars float, 
+useful number, 
+funny number, 
+cool number, 
+text varchar(1000000), 
+date TIMESTAMP_NTZ,
+
+constraint pk primary key (review_id)
+);
+
+CREATE TABLE DimUsers(
+user_id varchar(100), 
+name varchar(300),
+review_count number,
+yelping_since  TIMESTAMP_NTZ,
+useful number,
+funny number,
+cool number,
+elite varchar(300),
+friends varchar(1000000),
+fans number,
+average_stars float,
+compliment_hot number,
+compliment_more number,
+compliment_profile number,
+compliment_cute number,
+compliment_list number,
+compliment_note number,
+compliment_plain number,
+compliment_cool number,
+compliment_funny number,
+compliment_writer number,
+compliment_photos number,
+
+constraint pk primary key (user_id)
+);
 
 CREATE TABLE FactTable_Review (
  user_id varchar(100), 
- business_id varchar(100), 
- user_tip_id varchar(100),
- covid_feature_id varchar(100),
+ business_id varchar(1000), 
  checkin_id varchar(100),
  review_id varchar(100),
- climate_precipitation_id varchar(100),
- climate_temperature_id varchar(100)
+ date date,
 
- constraint fk_user foreign key (user_id) references yelp.dws.DimUsers,
- constraint business_id foreign key (business_id) references yelp.dws.DimBusiness,  
- constraint user_tip_id foreign key (text,date) references yelp.dws.DimUserTips,  
- constraint covid_feature_id foreign key (business_id, highlights) references yelp.dws.DimCovidFeatures,  
- constraint checkin_id foreign key (business_id, date) references yelp.dws.DimCheckin, 
- constraint climate_precipitation_id foreign key (date) references yelp.dws.DimClimatePrecipitation, 
- constraint climate_temperature_id foreign key (date) references yelp.dws.DimClimateTemperatureDegrees, 
-)
+ constraint fk_user foreign key (user_id) references yelp.dws.DimUsers(user_id),
+ constraint fk_business foreign key (business_id) references yelp.dws.DimBusiness(business_id),  
+ constraint fk_user_tip foreign key (user_id, business_id) references yelp.dws.DimUserTips(user_id, business_id),  
+ constraint fk_covid_feature foreign key (business_id) references yelp.dws.DimCovidFeatures(business_id),  
+ constraint fk_checkin foreign key (business_id) references yelp.dws.DimCheckin(business_id), 
+ constraint fk_review foreign key (review_id) references yelp.dws.DimReviews(review_id), 
+ constraint fk_climate_precipitation foreign key (date) references yelp.dws.DimClimatePrecipitation(date), 
+ constraint fk_climate_temperature foreign key (date) references yelp.dws.DimClimateTemperatureDegrees(date)
+);
 
