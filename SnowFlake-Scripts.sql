@@ -24,10 +24,10 @@ put file:///home/pouya/Desktop/projects/Data-Architecture-Yelp/datasets/usw00023
 put file:///home/pouya/Desktop/projects/Data-Architecture-Yelp/datasets/usw00023169-temperature-degreef.csv @CSV_DATA_STAGE auto_compress=true;
 
 -- Creating a table for Climate temperature degrees
-CREATE TABLE ClimateTemperatureDegrees (date number,min float,max float, normal_min float, normal_max float);
+CREATE TABLE ClimateTemperatureDegrees (date varchar,min float,max float, normal_min float, normal_max float);
 
 -- Creating a table for Climate preciptations
-CREATE TABLE ClimatePrecipitation (date number,precipitation varchar,precipitation_normal float);
+CREATE TABLE ClimatePrecipitation (date varchar,precipitation varchar,precipitation_normal float);
 
 -- Copying Climate datasets from CSV staging area to corresponding tables
 COPY INTO ClimateTemperatureDegrees FROM @csv_data_stage/usw00023169-temperature-degreef.csv.gz file_format=csv_format; 
@@ -75,17 +75,17 @@ CREATE SCHEMA ODS;
 -- ### CSV PART - CLIMATE ### --
 
 -- Creating a table for Climate temperature degrees
-CREATE TABLE ClimateTemperatureDegrees (date number,min float,max float, normal_min float, normal_max float);
+CREATE TABLE ClimateTemperatureDegrees (date date,min float,max float, normal_min float, normal_max float);
 
 INSERT INTO ClimateTemperatureDegrees
-SELECT date, min, max, normal_min,normal_max
+SELECT to_date(date,'YYYYMMDD'), min, max, normal_min,normal_max
 FROM yelp.staging.ClimateTemperatureDegrees;
 
 -- Creating a table for Climate preciptations
-CREATE TABLE ClimatePrecipitation (date number,precipitation varchar,precipitation_normal float);
+CREATE TABLE ClimatePrecipitation (date date,precipitation varchar,precipitation_normal float);
 
 INSERT INTO ClimatePrecipitation
-SELECT date, precipitation, precipitation_normal 
+SELECT to_date(date,'YYYYMMDD'), precipitation, precipitation_normal 
 FROM yelp.staging.ClimatePrecipitation;
 
 -- ### JSON PART - YELP ### -- 
@@ -148,9 +148,34 @@ SELECT user:user_id, user:name, user:review_count, user:yelping_since, user:usef
 -- COPY INTO users (user_id, name, review_count, yelping_since, useful, funny, cool, elite, friends, compliment_hot, compliment_more, compliment_profile, compliment_cute, compliment_list, compliment_note, compliment_plain, compliment_cool, compliment_funny, compliment_writer, compliment_photos)
 -- FROM (SELECT $1:user_id::varchar(100), $1:name::varchar(300), $1:review_count::number, $1:yelping_since::TIMESTAMP_NTZ, $1:useful::number, $1:funny::number, $1:cool::number, $1:elite::varchar(300), $1:friends::varchar(1000000), $1:fans::number, $1:compliment_hot::number, $1:compliment_more::number, $1:compliment_profile::number, $1:compliment_cute::number, $1:compliment_list::number, $1:compliment_note::number, $1:compliment_plain::number, $1:compliment_cool::number, $1:compliment_funny::number, $1:compliment_writer::number, $1:compliment_photos::number FROM @json_data_stage/yelp_academic_dataset_user.json.gz);
 
+-- Displaying relationship between Climate and Yelp data
+SELECT * FROM reviews AS r  
+JOIN ClimatePrecipitation AS ct 
+ON TO_CHAR(TO_TIMESTAMP_NTZ(ct.date), 'YYYY-MM-DD')  = TO_CHAR(r.date, 'YYYY-MM-DD');
+
 --  ############# --
 --  ## DWS ## --  
 --  ############# --
 
 CREATE SCHEMA DWS;
+
+-- Creating necessary tables
+CREATE TABLE DimClimateTemperatureDegrees (date date,min float,max float, normal_min float, normal_max float);
+
+CREATE TABLE DimClimatePrecipitation (date date,precipitation varchar,precipitation_normal float);
+
+CREATE TABLE DimUserTips(user_id varchar(100), business_id varchar(100), text varchar(500), date TIMESTAMP_NTZ, compliment_count number);
+
+CREATE TABLE DimCovidFeatures(business_id varchar(100), highlights varchar(10000), delivery_or_takout boolean, grubhub_enabled boolean, call_to_action_enabled boolean, request_a_quote_enbaled boolean, covid_banner varchar(30000), temporary_closed_Until varchar(500), virtual_services_offered varchar(500));
+
+CREATE TABLE DimCheckin(business_id varchar(100), date varchar(10000000));
+
+CREATE TABLE DimBusiness(business_id varchar(1000), name varchar(500), address varchar(1000), city varchar(500), state varchar(50), postal_code varchar(100), lattitude float, longitude float, stars float, review_count number, is_open number, attributes variant, hours variant, categories varchar(100000));
+
+CREATE TABLE DimReviews(review_id varchar(100), user_id varchar(100), business_id varchar(100), stars float,  useful number, funny number, cool number, text varchar(1000000), date TIMESTAMP_NTZ);
+
+CREATE TABLE DimUsers(user_id varchar(100), name varchar(300), review_count number, yelping_since  TIMESTAMP_NTZ, useful number, funny number, cool number, elite varchar(300), friends varchar(1000000), fans number, average_stars float, compliment_hot number, compliment_more number, compliment_profile number, compliment_cute number, compliment_list number, compliment_note number, compliment_plain number, compliment_cool number, compliment_funny number, compliment_writer number, compliment_photos number);
+
+
+
 
