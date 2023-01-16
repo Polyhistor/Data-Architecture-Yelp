@@ -321,11 +321,22 @@ FROM yelp.ods.users;
 
 INSERT INTO FactTable_Review
 SELECT u.user_id, b.business_id, r.review_id, cp.date 
-FROM DimReviews as r
-JOIN DimUsers as u 
+FROM DimReviews AS r
+JOIN DimUsers AS u 
 ON r.user_id = u.user_id
-JOIN DimBusiness as b 
+JOIN DimBusiness AS b 
 ON r.business_id = b.business_id
-JOIN DimClimatePrecipitation as cp 
+JOIN DimClimatePrecipitation AS cp 
 ON r.date = cp.date;
 
+-- SQL generated report that clearly includes business name, temperature, precipitation, and ratings.
+SELECT b.name as business_name, t.min AS minimum_temperature, t.max AS maximum_temperature, cp.precipitation, r.text 
+FROM FactTable_Review AS fr 
+JOIN DimBusiness AS b 
+ON fr.business_id = b.business_id
+JOIN DimClimateTemperatureDegrees AS t
+ON fr.date = t.date 
+JOIN DimClimatePrecipitation AS cp 
+ON fr.date = cp.date 
+JOIN DimReviews as r 
+ON fr.review_id = r.review_id;
