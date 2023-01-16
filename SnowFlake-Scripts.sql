@@ -286,3 +286,56 @@ CREATE TABLE FactTable_Review (
  constraint fk_climate_temperature foreign key (date) references yelp.dws.DimClimateTemperatureDegrees(date)
 );
 
+
+-- Moving data from ODS to DWS 
+INSERT INTO DimClimateTemperatureDegrees 
+SELECT date, min, max, normal_min, normal_max 
+FROM yelp.ods.CLIMATETEMPERATUREDEGREES;
+
+INSERT INTO DimClimatePrecipitation 
+SELECT date, precipitation, precipitation_normal
+FROM yelp.ods.ClimatePrecipitation;
+
+INSERT INTO DimUserTips 
+SELECT user_id, business_id, text, date, COMPLIMENT_COUNT
+FROM yelp.ods.usertips;
+
+INSERT INTO DimCovidFeatures 
+SELECT business_id, highlights, delivery_or_takout, grubhub_enabled, call_to_action_enabled, request_a_quote_enbaled, covid_banner, temporary_closed_Until, virtual_services_offered 
+FROM yelp.ods.covidFeatures;
+
+INSERT INTO DimCheckin 
+SELECT business_id, date
+FROM yelp.ods.checkins;
+
+INSERT INTO DimBusiness 
+SELECT business_id, name, address, city, state, postal_code, lattitude, longitude, stars, review_count, is_open, attributes, hours, categories   
+FROM yelp.ods.business;
+
+INSERT INTO DimReviews 
+SELECT review_id, user_id, business_id, stars, useful, funny, cool, text, date
+FROM yelp.ods.reviews;
+
+INSERT INTO DimUsers 
+SELECT user_id, name, review_count, yelping_since, useful, funny, cool, elite, friends, fans, average_stars, compliment_hot, compliment_more, compliment_profile, compliment_cute, compliment_list, compliment_note, compliment_plain, compliment_cool, compliment_funny, compliment_writer, compliment_photos  
+FROM yelp.ods.users; 
+
+
+
+
+CREATE TABLE FactTable_Review (
+ user_id varchar(100), 
+ business_id varchar(1000), 
+ checkin_id varchar(100),
+ review_id varchar(100),
+ date date,
+
+ constraint fk_user foreign key (user_id) references yelp.dws.DimUsers(user_id),
+ constraint fk_business foreign key (business_id) references yelp.dws.DimBusiness(business_id),  
+ constraint fk_user_tip foreign key (user_id, business_id) references yelp.dws.DimUserTips(user_id, business_id),  
+ constraint fk_covid_feature foreign key (business_id) references yelp.dws.DimCovidFeatures(business_id),  
+ constraint fk_checkin foreign key (business_id) references yelp.dws.DimCheckin(business_id), 
+ constraint fk_review foreign key (review_id) references yelp.dws.DimReviews(review_id), 
+ constraint fk_climate_precipitation foreign key (date) references yelp.dws.DimClimatePrecipitation(date), 
+ constraint fk_climate_temperature foreign key (date) references yelp.dws.DimClimateTemperatureDegrees(date)
+);
