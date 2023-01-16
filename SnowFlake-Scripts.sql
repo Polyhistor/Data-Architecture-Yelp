@@ -272,7 +272,6 @@ constraint pk primary key (user_id)
 CREATE TABLE FactTable_Review (
  user_id varchar(100), 
  business_id varchar(1000), 
- checkin_id varchar(100),
  review_id varchar(100),
  date date,
 
@@ -320,22 +319,13 @@ INSERT INTO DimUsers
 SELECT user_id, name, review_count, yelping_since, useful, funny, cool, elite, friends, fans, average_stars, compliment_hot, compliment_more, compliment_profile, compliment_cute, compliment_list, compliment_note, compliment_plain, compliment_cool, compliment_funny, compliment_writer, compliment_photos  
 FROM yelp.ods.users; 
 
+INSERT INTO FactTable_Review
+SELECT u.user_id, b.business_id, r.review_id, cp.date 
+FROM DimReviews as r
+JOIN DimUsers as u 
+ON r.user_id = u.user_id
+JOIN DimBusiness as b 
+ON r.business_id = b.business_id
+JOIN DimClimatePrecipitation as cp 
+ON r.date = cp.date;
 
-
-
-CREATE TABLE FactTable_Review (
- user_id varchar(100), 
- business_id varchar(1000), 
- checkin_id varchar(100),
- review_id varchar(100),
- date date,
-
- constraint fk_user foreign key (user_id) references yelp.dws.DimUsers(user_id),
- constraint fk_business foreign key (business_id) references yelp.dws.DimBusiness(business_id),  
- constraint fk_user_tip foreign key (user_id, business_id) references yelp.dws.DimUserTips(user_id, business_id),  
- constraint fk_covid_feature foreign key (business_id) references yelp.dws.DimCovidFeatures(business_id),  
- constraint fk_checkin foreign key (business_id) references yelp.dws.DimCheckin(business_id), 
- constraint fk_review foreign key (review_id) references yelp.dws.DimReviews(review_id), 
- constraint fk_climate_precipitation foreign key (date) references yelp.dws.DimClimatePrecipitation(date), 
- constraint fk_climate_temperature foreign key (date) references yelp.dws.DimClimateTemperatureDegrees(date)
-);
