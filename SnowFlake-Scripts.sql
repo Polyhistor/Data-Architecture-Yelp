@@ -75,56 +75,138 @@ CREATE SCHEMA ODS;
 -- ### CSV PART - CLIMATE ### --
 
 -- Creating a table for Climate temperature degrees
-CREATE TABLE ClimateTemperatureDegrees (date date,min float,max float, normal_min float, normal_max float);
+CREATE TABLE ClimateTemperatureDegrees (
+    date date,
+    min float,
+    max float,
+    normal_min float, 
+    normal_max float,
+        
+    constraint pk primary key (date)
+);
 
 INSERT INTO ClimateTemperatureDegrees
 SELECT to_date(date,'YYYYMMDD'), min, max, normal_min,normal_max
 FROM yelp.staging.ClimateTemperatureDegrees;
 
-ALTER TABLE ClimateTemperatureDegrees ADD PRIMARY KEY (date); 
-
 -- Creating a table for Climate preciptations
-CREATE TABLE ClimatePrecipitation (date date,precipitation varchar,precipitation_normal float);
+CREATE TABLE ClimatePrecipitation (
+    date date,
+    precipitation varchar,
+    precipitation_normal float,
+    
+    constraint pk primary key (date)
+);
 
 INSERT INTO ClimatePrecipitation
 SELECT to_date(date,'YYYYMMDD'), precipitation, precipitation_normal 
 FROM yelp.staging.ClimatePrecipitation;
 
-ALTER TABLE ClimatePrecipitation ADD PRIMARY KEY (date); 
-
 -- ### JSON PART - YELP ### -- 
 
 -- Creating a table for Yelp customer tips 
-CREATE TABLE userTips(user_id varchar(100), business_id varchar(100), text varchar(500), date TIMESTAMP_NTZ, compliment_count number);
+CREATE TABLE userTips(
+    user_id varchar(100),
+    business_id varchar(1000), 
+    text varchar(500), 
+    date date, 
+    compliment_count number,
 
-ALTER TABLE userTips ADD PRIMARY KEY (text,date); 
+    constraint pk primary key (text, date),    
+    constraint fk_user_id foreign key (user_id) references users(user_id),
+    constraint fk_business_id foreign key (business_id) references business(business_id)
+);
 
 -- Creating a table for Yelp COVID features dataset
-CREATE TABLE covidFeatures(business_id varchar(100), highlights varchar(10000), delivery_or_takout boolean, grubhub_enabled boolean, call_to_action_enabled boolean, request_a_quote_enbaled boolean, covid_banner varchar(30000), temporary_closed_Until varchar(500), virtual_services_offered varchar(500));
+CREATE TABLE covidFeatures(
+    business_id varchar(1000),
+    highlights varchar(10000), 
+    delivery_or_takout boolean, 
+    grubhub_enabled boolean, 
+    call_to_action_enabled boolean, 
+    request_a_quote_enbaled boolean, 
+    covid_banner varchar(30000), 
+    temporary_closed_Until varchar(500), 
+    virtual_services_offered varchar(500),
 
-ALTER TABLE covidFeatures ADD PRIMARY KEY (business_id,highlights); 
+    constraint pk primary key (business_id,highlights),
+    constraint fk foreign key (business_id) references business(business_id)
+);
 
 -- Creating a table for Yelp customer check ins
-CREATE TABLE checkins(business_id varchar(100), date varchar(10000000));
+CREATE TABLE checkins(
+    business_id varchar(1000), 
+    date varchar(10000000),
 
-ALTER TABLE checkins ADD PRIMARY KEY (business_id,date); 
+    constraint pk primary key (business_id,date),
+    constraint fk foreign key (business_id) references business(business_id)
+);
 
 -- Creating a table for Yelp businesses dataset
-CREATE TABLE business(business_id varchar(1000), name varchar(500), address varchar(1000), city varchar(500), state varchar(50), postal_code varchar(100), lattitude float, longitude float, stars float, review_count number, is_open number, attributes variant, hours variant, categories varchar(100000));
-
-ALTER TABLE business ADD PRIMARY KEY (business_id); 
+CREATE TABLE business(
+    business_id varchar(1000),
+    name varchar(500), 
+    address varchar(1000), 
+    city varchar(500), 
+    state varchar(50), 
+    postal_code varchar(100), 
+    lattitude float, 
+    longitude float, 
+    stars float, 
+    review_count number, 
+    is_open number, 
+    attributes variant, 
+    hours variant, 
+    categories varchar(100000),
+    
+    constraint pk primary key (business_id)
+);
 
 -- Creating a table for Yelp customer reviews
-CREATE TABLE reviews(review_id varchar(100), user_id varchar(100), business_id varchar(100), stars float,  useful number, funny number, cool number, text varchar(1000000), date TIMESTAMP_NTZ);
+CREATE TABLE reviews(
+    review_id varchar(100), 
+    user_id varchar(100),
+    business_id varchar(1000), 
+    stars float,  
+    useful number, 
+    funny number, 
+    cool number, 
+    text varchar(1000000), 
+    date date,
 
-ALTER TABLE reviews ADD PRIMARY KEY (review_id);
-ALTER TABLE reviews ADD FOREIGN KEY (date) REFERENCES ClimateTemperatureDegrees(date);
-ALTER TABLE reviews ADD FOREIGN KEY (date) REFERENCES ClimatePrecipitation(date);
+    constraint pk primary key (review_id),    
+    constraint fk_user_id foreign key (user_id) references users(user_id),
+    constraint fk_business_id foreign key (business_id) references business(business_id)
+);
 
 -- Creating a table for Yelp users
-CREATE TABLE users(user_id varchar(100), name varchar(300), review_count number, yelping_since  TIMESTAMP_NTZ, useful number, funny number, cool number, elite varchar(300), friends varchar(1000000), fans number, average_stars float, compliment_hot number, compliment_more number, compliment_profile number, compliment_cute number, compliment_list number, compliment_note number, compliment_plain number, compliment_cool number, compliment_funny number, compliment_writer number, compliment_photos number);
+CREATE TABLE users(
+    user_id varchar(100), 
+    name varchar(300), 
+    review_count number, 
+    yelping_since  TIMESTAMP_NTZ, 
+    useful number, 
+    funny number, 
+    cool number, 
+    elite varchar(300), 
+    friends varchar(1000000), 
+    fans number, 
+    average_stars float, 
+    compliment_hot number, 
+    compliment_more number, 
+    compliment_profile number, 
+    compliment_cute number, 
+    compliment_list number, 
+    compliment_note number, 
+    compliment_plain number, 
+    compliment_cool number, 
+    compliment_funny number, 
+    compliment_writer number, 
+    compliment_photos number,
+    
+    constraint pk primary key(user_id)
+    );
 
-ALTER TABLE users ADD PRIMARY KEY (user_id); 
 
 -- Copying Yelp datasets from JSON staging area to corresponding tables
 INSERT INTO userTips 
@@ -178,23 +260,17 @@ ON TO_CHAR(TO_TIMESTAMP_NTZ(ct.date), 'YYYY-MM-DD')  = TO_CHAR(r.date, 'YYYY-MM-
 CREATE SCHEMA DWS;
 
 -- Creating necessary tables
-CREATE TABLE DimClimateTemperatureDegrees (
-date date,
-min float,
-max float, 
-normal_min float,
-normal_max float,
+CREATE TABLE DimClimate (
+    date date, 
+    precipitation varchar,
+    precipitation_normal float, 
+    min float, 
+    max float, 
+    normal_min float, 
+    normal_max float,
 
-constraint pk primary key (date)
-);
-
-CREATE TABLE DimClimatePrecipitation (
-date date,
-precipitation varchar,
-precipitation_normal float,
-
-constraint pk primary key (date)
-);
+    constraint pk primary key (date)
+)
 
 CREATE TABLE DimUserTips(
 user_id varchar(100), 
@@ -299,19 +375,24 @@ CREATE TABLE FactTable_Review (
  constraint fk_covid_feature foreign key (business_id) references yelp.dws.DimCovidFeatures(business_id),  
  constraint fk_checkin foreign key (business_id) references yelp.dws.DimCheckin(business_id), 
  constraint fk_review foreign key (review_id) references yelp.dws.DimReviews(review_id), 
- constraint fk_climate_precipitation foreign key (date) references yelp.dws.DimClimatePrecipitation(date), 
- constraint fk_climate_temperature foreign key (date) references yelp.dws.DimClimateTemperatureDegrees(date)
+ constraint fk_climate foreign key (date) references yelp.dws.DimClimate(date)
 );
 
 
 -- Moving data from ODS to DWS 
-INSERT INTO DimClimateTemperatureDegrees 
-SELECT date, min, max, normal_min, normal_max 
-FROM yelp.ods.CLIMATETEMPERATUREDEGREES;
+INSERT INTO DimClimate 
+SELECT ct.date, ct.min, ct.max, ct.normal_min, ct.normal_max, cp.precipitation, cp.precipitation_normal
+FROM yelp.ods.CLIMATETEMPERATUREDEGREES AS ct 
+JOIN yelp.ods.ClimatePrecipitation AS cp
+ON ct.date = cp.date;
 
-INSERT INTO DimClimatePrecipitation 
-SELECT date, precipitation, precipitation_normal
-FROM yelp.ods.ClimatePrecipitation;
+-- INSERT INTO DimClimateTemperatureDegrees 
+-- SELECT date, min, max, normal_min, normal_max 
+-- FROM yelp.ods.CLIMATETEMPERATUREDEGREES;
+
+-- INSERT INTO DimClimatePrecipitation 
+-- SELECT date, precipitation, precipitation_normal
+-- FROM yelp.ods.ClimatePrecipitation;
 
 INSERT INTO DimUserTips 
 SELECT user_id, business_id, text, date, COMPLIMENT_COUNT
@@ -344,7 +425,7 @@ JOIN DimUsers AS u
 ON r.user_id = u.user_id
 JOIN DimBusiness AS b 
 ON r.business_id = b.business_id
-JOIN DimClimatePrecipitation AS cp 
+JOIN DimClimate AS cp 
 ON r.date = cp.date;
 
 -- SQL generated report that clearly includes business name, temperature, precipitation, and ratings.
@@ -354,7 +435,7 @@ JOIN DimBusiness AS b
 ON fr.business_id = b.business_id
 JOIN DimClimateTemperatureDegrees AS t
 ON fr.date = t.date 
-JOIN DimClimatePrecipitation AS cp 
+JOIN DimClimate AS cp 
 ON fr.date = cp.date 
 JOIN DimReviews as r 
 ON fr.review_id = r.review_id;
