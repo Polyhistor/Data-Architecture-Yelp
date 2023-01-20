@@ -81,6 +81,8 @@ INSERT INTO ClimateTemperatureDegrees
 SELECT to_date(date,'YYYYMMDD'), min, max, normal_min,normal_max
 FROM yelp.staging.ClimateTemperatureDegrees;
 
+ALTER TABLE ClimateTemperatureDegrees ADD PRIMARY KEY (date); 
+
 -- Creating a table for Climate preciptations
 CREATE TABLE ClimatePrecipitation (date date,precipitation varchar,precipitation_normal float);
 
@@ -88,25 +90,41 @@ INSERT INTO ClimatePrecipitation
 SELECT to_date(date,'YYYYMMDD'), precipitation, precipitation_normal 
 FROM yelp.staging.ClimatePrecipitation;
 
+ALTER TABLE ClimatePrecipitation ADD PRIMARY KEY (date); 
+
 -- ### JSON PART - YELP ### -- 
 
 -- Creating a table for Yelp customer tips 
 CREATE TABLE userTips(user_id varchar(100), business_id varchar(100), text varchar(500), date TIMESTAMP_NTZ, compliment_count number);
 
+ALTER TABLE userTips ADD PRIMARY KEY (text,date); 
+
 -- Creating a table for Yelp COVID features dataset
 CREATE TABLE covidFeatures(business_id varchar(100), highlights varchar(10000), delivery_or_takout boolean, grubhub_enabled boolean, call_to_action_enabled boolean, request_a_quote_enbaled boolean, covid_banner varchar(30000), temporary_closed_Until varchar(500), virtual_services_offered varchar(500));
+
+ALTER TABLE covidFeatures ADD PRIMARY KEY (business_id,highlights); 
 
 -- Creating a table for Yelp customer check ins
 CREATE TABLE checkins(business_id varchar(100), date varchar(10000000));
 
+ALTER TABLE checkins ADD PRIMARY KEY (business_id,date); 
+
 -- Creating a table for Yelp businesses dataset
 CREATE TABLE business(business_id varchar(1000), name varchar(500), address varchar(1000), city varchar(500), state varchar(50), postal_code varchar(100), lattitude float, longitude float, stars float, review_count number, is_open number, attributes variant, hours variant, categories varchar(100000));
+
+ALTER TABLE business ADD PRIMARY KEY (business_id); 
 
 -- Creating a table for Yelp customer reviews
 CREATE TABLE reviews(review_id varchar(100), user_id varchar(100), business_id varchar(100), stars float,  useful number, funny number, cool number, text varchar(1000000), date TIMESTAMP_NTZ);
 
+ALTER TABLE reviews ADD PRIMARY KEY (review_id);
+ALTER TABLE reviews ADD FOREIGN KEY (date) REFERENCES ClimateTemperatureDegrees(date);
+ALTER TABLE reviews ADD FOREIGN KEY (date) REFERENCES ClimatePrecipitation(date);
+
 -- Creating a table for Yelp users
 CREATE TABLE users(user_id varchar(100), name varchar(300), review_count number, yelping_since  TIMESTAMP_NTZ, useful number, funny number, cool number, elite varchar(300), friends varchar(1000000), fans number, average_stars float, compliment_hot number, compliment_more number, compliment_profile number, compliment_cute number, compliment_list number, compliment_note number, compliment_plain number, compliment_cool number, compliment_funny number, compliment_writer number, compliment_photos number);
+
+ALTER TABLE users ADD PRIMARY KEY (user_id); 
 
 -- Copying Yelp datasets from JSON staging area to corresponding tables
 INSERT INTO userTips 
